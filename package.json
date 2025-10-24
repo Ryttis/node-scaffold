@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "migrate": "node scripts/init-db.js",
+    "migrate": "npx sequelize-cli db:migrate --migrations-path db/migrations",
+    "reset": "npx sequelize-cli db:migrate:undo:all --migrations-path db/migrations && npx sequelize-cli db:migrate --migrations-path db/migrations",
     "test-db": "node scripts/test-db.js"
   },
   "dependencies": {
