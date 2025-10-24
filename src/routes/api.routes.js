@@ -9,7 +9,6 @@ const router = express.Router();
 router.post('/users/register', UsersController.register);
 
 /* ---------- PROMPTS ---------- */
-router.post('/prompts', PromptsController.create);
-router.get('/prompts', PromptsController.list);
+
 
 export default router;
