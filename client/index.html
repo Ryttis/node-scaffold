@@ -1,13 +1,63 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
-</html>
+<div x-data="auth()" class="mt-8 space-y-4">
+    <h2 class="text-xl font-semibold">Register / Login</h2>
+
+    <form @submit.prevent="register">
+        <input x-model="email" placeholder="Email" class="border p-2 rounded mr-2" />
+        <input x-model="password" type="password" placeholder="Password" class="border p-2 rounded mr-2" />
+        <button class="bg-green-600 text-white px-3 py-2 rounded">Register</button>
+    </form>
+
+    <form @submit.prevent="login">
+        <input x-model="email" placeholder="Email" class="border p-2 rounded mr-2" />
+        <input x-model="password" type="password" placeholder="Password" class="border p-2 rounded mr-2" />
+        <button class="bg-blue-600 text-white px-3 py-2 rounded">Login</button>
+    </form>
+
+    <button @click="fetchMe" class="bg-gray-600 text-white px-3 py-2 rounded">Check Token</button>
+    <p class="text-gray-700" x-text="status"></p>
+</div>
+
+<script type="module">
+    import 'alpinejs'
+
+    function auth() {
+        return {
+            email: '',
+            password: '',
+            status: '',
+            token: '',
+            async register() {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: this.email, password: this.password })
+                })
+                const data = await res.json()
+                this.status = data.error ? data.error : 'Registered!'
+            },
+            async login() {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: this.email, password: this.password })
+                })
+                const data = await res.json()
+                if (data.token) {
+                    this.token = data.token
+                    localStorage.setItem('jwt', data.token)
+                    this.status = 'Logged in!'
+                } else {
+                    this.status = data.error
+                }
+            },
+            async fetchMe() {
+                const token = localStorage.getItem('jwt')
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                const data = await res.json()
+                this.status = JSON.stringify(data)
+            }
+        }
+    }
+</script>
